@@ -1,0 +1,537 @@
+﻿@page "/marksix"
+@using System.Text
+@attribute [StreamRendering]
+@inject IJSRuntime JSRuntime
+@inject ILogger<MarkSix> Logger
+@inject IWebHostEnvironment Environment
+
+<script>
+    function BlazorDownloadFile(filename, contentType, content) {
+        // Create the URL
+        const file = new File([content], filename, { type: contentType });
+        const exportUrl = URL.createObjectURL(file);
+
+        // Create the <a> element and click on it
+        const a = document.createElement("a");
+        document.body.appendChild(a);
+        a.href = exportUrl;
+        a.download = filename;
+        a.target = "_self";
+        a.click();
+
+        // We don't need to keep the object URL, let's release the memory
+        // On older versions of Safari, it seems you need to comment this line...
+        URL.revokeObjectURL(exportUrl);
+    }
+
+    function SetImage(id, source) {
+        var image = document.getElementById(id);
+        image.src = source;
+    }
+</script>
+
+<PageTitle>Mark Six</PageTitle>
+@*
+<h1>Mark Six</h1>
+
+<p>This page will generate Mark Six Tips</p>
+<br /> *@
+
+@if (records == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="container">
+        <div class="row justify-content-start">
+            <div class="col-sm-12">
+                @if (no1 > 0)
+                {
+                    <span class="text-center">
+                        <img src="@ball1Source" class="img-thumbnail" alt="1">
+                    </span>
+                }
+                @if (no2 > 0)
+                {
+                    //var ball2Source = string.Format(img, no2);
+                    <span class="text-center">
+                        <img src="@ball2Source" class="img-thumbnail" alt="2">
+                    </span>
+                }
+                @if (no3 > 0)
+                {
+                    //var ball3Source = string.Format(img, no3);
+                    <span class="text-center">
+                        <img src="@ball3Source" class="img-thumbnail" alt="3">
+                    </span>
+                }
+                @if (no4 > 0)
+                {
+                    //var ball4Source = string.Format(img, no4);
+                    <span class="text-center">
+                        <img src="@ball4Source" class="img-thumbnail" alt="4">
+                    </span>
+                }
+                @if (no5 > 0)
+                {
+                    //var ball5Source = string.Format(img, no5);
+                    <span class="text-center">
+                        <img src="@ball5Source" class="img-thumbnail" alt="5">
+                    </span>
+                }
+                @if (no6 > 0)
+                {
+                    //var ball6Source = string.Format(img, no6);
+                    <span class="text-center">
+                        <img src="@ball6Source" class="img-thumbnail" alt="6">
+                    </span>
+                }
+
+            </div>
+        </div>
+        <br />
+        <div class="row justify-content-start">
+            <div class="d-grid gap-2 col-6 mx-auto">
+                <button @onclick="AddToList" class="btn btn-primary"><span class="bi-emoji-wink" />Submit</button>
+            </div>
+            <div class="d-grid gap-2 col-6 mx-auto">
+                <button @onclick="Download" class="btn btn-primary"><span class="bi-download" />Download</button>
+            </div>
+        </div>
+        <br />
+        <InputFile OnChange="LoadFiles" multiple class="form-control form-control-lg" />
+
+        <div class="container-fluid" style="font-size:20px;color:darkturquoise;">
+            <div class="col-xs-6">
+                <label for="exampleFormControlTextarea1" class="form-label">Tap the number (Once To Select, Twice To Undo):</label>
+                <br />
+                @foreach (var num in colAllNum)
+                {
+                    var src = string.Format(img, num);
+                    <button @onclick="() => InsertNumer(num)"><img id="@num" src="@src"></button>
+                }
+            </div>
+        </div>
+        <br />
+
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th><i class="bi bi-1-circle" style="font-size:30px;color:red;"></i></th>
+                    <th><i class="bi bi-2-circle" style="font-size:30px;color:orange;"></i></th>
+                    <th><i class="bi bi-3-circle" style="font-size:30px;color:yellow;"></i></th>
+                    <th><i class="bi bi-4-circle" style="font-size:30px;color:greenyellow;"></i></th>
+                    <th><i class="bi bi-5-circle" style="font-size:30px;color:cyan;"></i></th>
+                    <th><i class="bi bi-6-circle" style="font-size:30px;color:mediumpurple;"></i></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var record in records.Select((value, i) => new { i, value }))
+                {
+                    if (record == null) continue;
+                    var rowID = record.i + 1;
+                    var ball1 = string.Format(img, record?.value.No1);
+                    var ball2 = string.Format(img, record?.value.No2);
+                    var ball3 = string.Format(img, record?.value.No3);
+                    var ball4 = string.Format(img, record?.value.No4);
+                    var ball5 = string.Format(img, record?.value.No5);
+                    var ball6 = string.Format(img, record?.value.No6);
+                    <tr>
+                        <th style="font-size:30px;color:black;" scope="row"><button @onclick="() => DeleteRecord(record?.value)" class="btn btn-primary"><span class="bi-trash" />Delete</button></th>
+                        <td style="font-size:30px;color:red;"><img src=@ball1 alt="Ball 1"></td>
+                        <td style="font-size:30px;color:orange;"><img src=@ball2 alt="Ball 2"></td>
+                        <td style="font-size:30px;color:yellow;"><img src=@ball3 alt="Ball 3"></td>
+                        <td style="font-size:30px;color:greenyellow;"><img src=@ball4 alt="Ball 4"></td>
+                        <td style="font-size:30px;color:cyan;"><img src=@ball5 alt="Ball 5"></td>
+                        <td style="font-size:30px;color:mediumpurple;"><img src=@ball6 alt="Ball 6"></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+
+}
+
+@code {
+    List<MarkSixNumber> records = new List<MarkSixNumber>();
+    MarkSixNumber newRecord { get; set; } = new MarkSixNumber(0, 0, 0, 0, 0, 0);
+    private string img = "Images\\{0}.gif";
+    private string imgUsed = "Images\\no_{0}_s.gif";
+    private int no1 = 0;
+    private int no2 = 0;
+    private int no3 = 0;
+    private int no4 = 0;
+    private int no5 = 0;
+    private int no6 = 0;
+    private string ball1Source = string.Empty;
+    private string ball2Source = string.Empty;
+    private string ball3Source = string.Empty;
+    private string ball4Source = string.Empty;
+    private string ball5Source = string.Empty;
+    private string ball6Source = string.Empty;
+    private List<int> colAllNum { get; set; } = new List<int>();
+
+
+    private List<IBrowserFile> loadedFiles = new();
+    private long maxFileSize = 1024 * 15;
+    private int maxAllowedFiles = 1;
+    private bool isLoading;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Simulate asynchronous loading to demonstrate streaming rendering
+        await Task.Delay(500);
+
+        for (int i = 1; i < 50; i++)
+        {
+            colAllNum.Add(i);
+        }
+
+    }
+
+    private void DeleteRecord(MarkSixNumber? record)
+    {
+        if (record == null) return;
+        if (records.FirstOrDefault(f => f.No1 == record.No1) != null)
+        {
+            colAllNum.Add(record.No1);
+            colAllNum.Add(record.No2);
+            colAllNum.Add(record.No3);
+            colAllNum.Add(record.No4);
+            colAllNum.Add(record.No5);
+            colAllNum.Add(record.No6);
+
+            colAllNum = colAllNum.OrderBy(o => o).ToList();
+
+            records.RemoveAll(r => r.No1 == record.No1);
+        }
+
+    }
+
+    private async Task InsertNumer(int number)
+    {
+        var imageSrc = string.Format(img, number);
+        var usedImageSrc = string.Format(imgUsed, number);
+        var inserted = false;
+        var resumed = false;
+
+        if (no1 == 0)
+        {
+            no1 = number;
+            ball1Source = string.Format(img, no1);
+            inserted = true;
+        }
+        else if (no1 == number)
+        {
+            no1 = 0;
+            ball1Source = string.Empty;
+            resumed = true;
+        }
+        else if (no2 == 0)
+        {
+            no2 = number;
+            ball2Source = string.Format(img, no2);
+            inserted = true;
+        }
+        else if (no2 == number)
+        {
+            no2 = 0;
+            ball2Source = string.Empty;
+            resumed = true;
+        }
+        else if (no3 == 0)
+        {
+            no3 = number;
+            ball3Source = string.Format(img, no3);
+            inserted = true;
+        }
+        else if (no3 == number)
+        {
+            no3 = 0;
+            ball3Source = string.Empty;
+            resumed = true;
+        }
+        else if (no4 == 0)
+        {
+            no4 = number;
+            ball4Source = string.Format(img, no4);
+            inserted = true;
+
+        }
+        else if (no4 == number)
+        {
+            no4 = 0;
+            ball4Source = string.Empty;
+            resumed = true;
+        }
+        else if (no5 == 0)
+        {
+            no5 = number;
+            ball5Source = string.Format(img, no5);
+            inserted = true;
+        }
+        else if (no5 == number)
+        {
+            no5 = 0;
+            ball5Source = string.Empty;
+            resumed = true;
+        }
+        else if (no6 == 0)
+        {
+            no6 = number;
+            ball6Source = string.Format(img, no6);
+            inserted = true;
+        }
+        else if (no6 == number)
+        {
+            no6 = 0;
+            ball6Source = string.Empty;
+            resumed = true;
+        }
+
+        if (inserted)
+        {
+            await JSRuntime.InvokeVoidAsync("SetImage", number, usedImageSrc);
+        }
+        else if (resumed)
+        {
+            await JSRuntime.InvokeVoidAsync("SetImage", number, imageSrc);
+        }
+
+    }
+
+    private async Task LoadFiles(InputFileChangeEventArgs e)
+    {
+        isLoading = true;
+        loadedFiles.Clear();
+        byte[] result;
+        var resultText = string.Empty;
+
+        foreach (var file in e.GetMultipleFiles(maxAllowedFiles))
+        {
+            try
+            {
+                var type = file.ContentType;
+                if (type != "text/plain") continue;
+
+                using Stream readStream = file.OpenReadStream(maxFileSize);
+
+                result = new byte[readStream.Length];
+                await readStream.ReadAsync(result);
+
+                resultText = System.Text.Encoding.ASCII.GetString(result);
+
+                var numList = resultText.Split("\n");
+                if (numList.Length == 1) numList = resultText.Split("\r");
+                for (int i = 0; i < numList[i].Length && i < 8; i++)
+                {
+                    var numbers = numList[i].Split(',');
+                    if (numbers.Length != 6) continue;
+
+                    no1 = Convert.ToInt32(numbers[0]);
+                    no2 = Convert.ToInt32(numbers[1]);
+                    no3 = Convert.ToInt32(numbers[2]);
+                    no4 = Convert.ToInt32(numbers[3]);
+                    no5 = Convert.ToInt32(numbers[4]);
+                    no6 = Convert.ToInt32(numbers[5]);
+
+                    AddToList();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("File: {Filename} Error: {Error}",
+                    file.Name, ex.Message);
+            }
+        }
+
+        isLoading = false;
+    }
+
+    private void AddToList()
+    {
+        var colFiveRandom = new List<int>();
+        var colLastTwo = new List<int>();
+        var colTemp = new List<int>();
+
+        foreach (var record in records)
+        {
+            if (record.Contains(no1))
+            {
+                no1 = 0;
+                return;
+            }
+            if (record.Contains(no2))
+            {
+                no2 = 0;
+                return;
+            }
+            if (record.Contains(no3))
+            {
+                no3 = 0;
+                return;
+            }
+            if (record.Contains(no4))
+            {
+                no4 = 0;
+                return;
+            }
+            if (record.Contains(no5))
+            {
+                no5 = 0;
+                return;
+            }
+            if (record.Contains(no6))
+            {
+                no6 = 0;
+                return;
+            }
+        }
+
+        colTemp.Add(no1);
+        colTemp.Add(no2);
+        colTemp.Add(no3);
+        colTemp.Add(no4);
+        colTemp.Add(no5);
+        colTemp.Add(no6);
+
+        colTemp = colTemp.OrderBy(o => o).Distinct().ToList();
+
+        if (colTemp.Count < 6) return;
+
+        var newRecord = new MarkSixNumber(colTemp[0], colTemp[1], colTemp[2], colTemp[3], colTemp[4], colTemp[5]);
+
+        records.Add(newRecord);
+
+        colAllNum.RemoveAll(r => r.Equals(no1));
+        colAllNum.RemoveAll(r => r.Equals(no2));
+        colAllNum.RemoveAll(r => r.Equals(no3));
+        colAllNum.RemoveAll(r => r.Equals(no4));
+        colAllNum.RemoveAll(r => r.Equals(no5));
+        colAllNum.RemoveAll(r => r.Equals(no6));
+
+        no1 = 0;
+        no2 = 0;
+        no3 = 0;
+        no4 = 0;
+        no5 = 0;
+        no6 = 0;
+
+        colTemp.Clear();
+
+        if (colAllNum.Count == 1)
+        {
+            while (colAllNum.Count != 6)
+            {
+                Random r = new Random();
+                int rInt = r.Next(1, 50);
+
+                if (!colAllNum.Contains(rInt))
+                {
+                    colAllNum.Add(rInt);
+                    if (colFiveRandom.Count < 5) colFiveRandom.Add(rInt);
+                }
+            }
+
+            colAllNum = colAllNum.OrderBy(o => o).ToList();
+
+            newRecord = new MarkSixNumber(colAllNum[0], colAllNum[1], colAllNum[2], colAllNum[3], colAllNum[4], colAllNum[5]);
+
+            records.Add(newRecord);
+
+            colAllNum.Clear();
+            while (colAllNum.Count != 44)
+            {
+                Random r = new Random();
+                int rInt = r.Next(1, 50);
+
+                if (!colAllNum.Contains(rInt) && !colFiveRandom.Contains(rInt) && colAllNum.Count >= 42 && !colLastTwo.Contains(rInt))
+                {
+                    colLastTwo.Add(rInt);
+                    if (colLastTwo.Count == 2) break;
+                }
+                else if (!colAllNum.Contains(rInt) && !colFiveRandom.Contains(rInt))
+                {
+                    colAllNum.Add(rInt);
+                }
+            }
+
+            while (colAllNum.Count != 0)
+            {
+                var num = colAllNum[0];
+                colTemp.Add(num);
+                colAllNum.RemoveAll(r => r.Equals(num));
+
+                if (colTemp.Count == 6)
+                {
+                    colTemp = colTemp.OrderBy(o => o).ToList();
+                    newRecord = new MarkSixNumber(colTemp[0], colTemp[1], colTemp[2], colTemp[3], colTemp[4], colTemp[5]);
+
+                    records.Add(newRecord);
+
+                    colTemp.Clear();
+                }
+            }
+
+            while (colLastTwo.Count != 6)
+            {
+                Random r = new Random();
+                int rInt = r.Next(1, 50);
+
+                if (!colLastTwo.Contains(rInt))
+                {
+                    colLastTwo.Add(rInt);
+                }
+            }
+
+            colLastTwo = colLastTwo.OrderBy(o => o).ToList();
+            newRecord = new MarkSixNumber(colLastTwo[0], colLastTwo[1], colLastTwo[2], colLastTwo[3], colLastTwo[4], colLastTwo[5]);
+            records.Add(newRecord);
+        }
+
+    }
+
+    private async Task Download()
+    {
+        var sb = new StringBuilder();
+        foreach (var record in records)
+        {
+            sb.AppendLine($"{record.No1},{record.No2},{record.No3},{record.No4},{record.No5},{record.No6}");
+
+        }
+
+        byte[] file = System.Text.Encoding.UTF8.GetBytes(sb.ToString());
+
+        await JSRuntime.InvokeVoidAsync("BlazorDownloadFile", "Result.txt", "text/plain", file);
+
+    }
+
+    public class MarkSixNumber
+    {
+        public int No1 { get; set; }
+        public int No2 { get; set; }
+        public int No3 { get; set; }
+        public int No4 { get; set; }
+        public int No5 { get; set; }
+        public int No6 { get; set; }
+
+        public MarkSixNumber(int no1, int no2, int no3, int no4, int no5, int no6)
+        {
+            No1 = no1;
+            No2 = no2;
+            No3 = no3;
+            No4 = no4;
+            No5 = no5;
+            No6 = no6;
+        }
+
+        public bool Contains(int value)
+        {
+            return No1 == value || No2 == value || No3 == value || No4 == value || No5 == value || No6 == value;
+        }
+    }
+}

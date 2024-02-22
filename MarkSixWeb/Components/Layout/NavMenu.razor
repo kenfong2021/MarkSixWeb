@@ -1,0 +1,37 @@
+﻿<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+        <span class="bi bi-1-circle" style="color:red;" />
+        <span class="bi bi-2-circle" style="color:orange;" />
+        <span class="bi bi-3-circle" style="color:yellow;" />
+        <span class="bi bi-4-circle" style="color:greenyellow;" />
+        <span class="bi bi-5-circle" style="color:cyan;" />
+        <span class="bi bi-6-circle" style="color:mediumpurple;" />
+        <a class="navbar-brand" href="">MarkSixWeb</a>
+    </div>
+</div>
+
+<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
+
+<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
+    <nav class="flex-column">
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
+            </NavLink>
+        </div>
+
+@*         <div class="nav-item px-3">
+            <NavLink class="nav-link" href="counter">
+                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
+            </NavLink>
+        </div> *@
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="marksix">
+                <span class="bi bi-6-circle-nav-menu" aria-hidden="true">
+                </span> Mark Six
+            </NavLink>
+        </div>
+    </nav>
+</div>
+
