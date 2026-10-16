@@ -1,0 +1,8 @@
+bin/
+obj/
+.vs/
+*.user
+*.pubxml
+PublishProfiles/
+firebase-debug.log
+release/
